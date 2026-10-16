@@ -27,3 +27,7 @@
 body {
   @apply bg-bg text-text font-sans antialiased;
 }
+
+:root {
+  color-scheme:  dark;
+}
