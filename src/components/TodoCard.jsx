@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { STATUSES, STATUS_MAP } from '../constants/status';
 import { useToast } from '../context/ToastContext';
+import {
+  formatSchedule,
+  getDeadlineState,
+  validateDateRange,
+} from '../utils/dates';
 import Modal from './Modal';
+import DateRangeFields from './DateRangeFields';
 
 const dateFormatter = new Intl.DateTimeFormat('id-ID', {
   day: 'numeric',
@@ -12,28 +18,44 @@ const dateFormatter = new Intl.DateTimeFormat('id-ID', {
 const inputClass =
   'w-full rounded-lg border border-border bg-surface-2 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent';
 
-// Perkiraan sederhana: catatan dianggap "panjang" jika lebih dari
-// 2 baris atau lebih dari ~90 karakter.
+const DEADLINE_BADGES = {
+  overdue: {
+    label: 'Terlambat',
+    className: 'bg-danger/15 text-danger border-danger/40',
+  },
+  soon: {
+    label: '< 24 jam',
+    className: 'bg-status-pending/15 text-status-pending border-status-pending/40',
+  },
+};
+
 function isLongNote(note) {
   return note.split('\n').length > 2 || note.length > 90;
 }
 
-export default function TodoCard({ todo, onUpdate, onDelete }) {
+export default function TodoCard({ todo, now, onUpdate, onDelete }) {
   const showToast = useToast();
 
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(todo.title);
   const [draftNote, setDraftNote] = useState(todo.note);
+  const [draftStartAt, setDraftStartAt] = useState(todo.startAt);
+  const [draftDueAt, setDraftDueAt] = useState(todo.dueAt);
   const [error, setError] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
 
   const isDone = todo.status === 'done';
   const status = STATUS_MAP[todo.status] ?? STATUS_MAP.none;
+  const schedule = formatSchedule(todo.startAt, todo.dueAt);
+  const deadlineState = getDeadlineState(todo, now);
+  const deadlineBadge = deadlineState ? DEADLINE_BADGES[deadlineState] : null;
 
   function startEdit() {
     setDraftTitle(todo.title);
     setDraftNote(todo.note);
+    setDraftStartAt(todo.startAt);
+    setDraftDueAt(todo.dueAt);
     setError('');
     setIsEditing(true);
   }
@@ -44,7 +66,17 @@ export default function TodoCard({ todo, onUpdate, onDelete }) {
       setError('Judul tugas tidak boleh kosong.');
       return;
     }
-    onUpdate(todo.id, { title: draftTitle.trim(), note: draftNote.trim() });
+    const dateError = validateDateRange(draftStartAt, draftDueAt);
+    if (dateError) {
+      setError(dateError);
+      return;
+    }
+    onUpdate(todo.id, {
+      title: draftTitle.trim(),
+      note: draftNote.trim(),
+      startAt: draftStartAt,
+      dueAt: draftDueAt,
+    });
     setIsEditing(false);
     showToast('Tugas diperbarui');
   }
@@ -85,6 +117,12 @@ export default function TodoCard({ todo, onUpdate, onDelete }) {
           aria-label="Edit catatan"
           className={`${inputClass} resize-y text-sm placeholder:text-muted`}
         />
+        <DateRangeFields
+          startAt={draftStartAt}
+          dueAt={draftDueAt}
+          onStartChange={setDraftStartAt}
+          onDueChange={setDraftDueAt}
+        />
         {error && <p className="text-sm text-danger">{error}</p>}
         <div className="flex justify-end gap-2">
           <button
@@ -108,9 +146,9 @@ export default function TodoCard({ todo, onUpdate, onDelete }) {
   // ---------- Mode tampil ----------
   return (
     <article
-      className={`rounded-xl border border-border bg-surface p-4 transition duration-200 hover:bg-surface-2 ${
-        isDone ? 'opacity-60' : ''
-      }`}
+      className={`rounded-xl border bg-surface p-4 transition duration-200 hover:bg-surface-2 ${
+        deadlineState === 'overdue' ? 'border-danger/50' : 'border-border'
+      } ${isDone ? 'opacity-60' : ''}`}
     >
       <div className="flex items-start justify-between gap-3">
         <h3 className={`break-words font-semibold ${isDone ? 'line-through' : ''}`}>
@@ -148,9 +186,40 @@ export default function TodoCard({ todo, onUpdate, onDelete }) {
         </div>
       )}
 
+      {schedule && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+          <span
+            className={`inline-flex items-center gap-1.5 ${
+              deadlineState === 'overdue' ? 'text-danger' : 'text-muted'
+            }`}
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              className="h-3.5 w-3.5"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <polyline points="12 7 12 12 15 14" />
+            </svg>
+            {schedule}
+          </span>
+          {deadlineBadge && (
+            <span
+              className={`rounded-full border px-2 py-0.5 font-medium ${deadlineBadge.className}`}
+            >
+              {deadlineBadge.label}
+            </span>
+          )}
+        </div>
+      )}
+
       <div className="mt-3 flex items-center justify-between">
         <time dateTime={todo.createdAt} className="text-xs text-muted">
-          {dateFormatter.format(new Date(todo.createdAt))}
+          Dibuat {dateFormatter.format(new Date(todo.createdAt))}
         </time>
         <div className="flex gap-2">
           <button
@@ -170,7 +239,6 @@ export default function TodoCard({ todo, onUpdate, onDelete }) {
         </div>
       </div>
 
-      {/* Modal konfirmasi hapus */}
       <Modal
         open={confirmOpen}
         title="Hapus tugas?"
@@ -199,7 +267,6 @@ export default function TodoCard({ todo, onUpdate, onDelete }) {
         </div>
       </Modal>
 
-      {/* Modal catatan penuh */}
       <Modal
         open={noteOpen}
         title={todo.title}

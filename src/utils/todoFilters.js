@@ -37,6 +37,18 @@ export function getVisibleTodos(todos, { filter, query, sortBy }) {
       const diff = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
       if (diff !== 0) return diff;
     }
+    
+    if (sortBy === 'deadline') {
+      if (a.dueAt && b.dueAt) {
+        const diff = a.dueAt.localeCompare(b.dueAt);
+        if (diff !== 0) return diff;
+      } else if (a.dueAt) {
+        return -1;
+      } else if (b.dueAt) {
+        return 1;
+      }
+    }
+    
     // Default (dan pemecah seri): terbaru di atas
     return b.createdAt.localeCompare(a.createdAt);
   });

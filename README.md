@@ -55,7 +55,9 @@ Setiap tugas memiliki satu status:
   "status": "none | progress | pending | done",
   "note": "string (opsional)",
   "createdAt": "ISO 8601 datetime",
-  "updatedAt": "ISO 8601 datetime"
+  "updatedAt": "ISO 8601 datetime",
+  "startAt": "string (opsional, format YYYY-MM-DDTHH:mm, waktu lokal)",
+  "dueAt": "string (opsional, format YYYY-MM-DDTHH:mm, harus setelah startAt)",
 }
 ```
 

@@ -6,7 +6,10 @@ const STORAGE_KEY = 'todos';
 function loadTodos() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(parsed)) return [];
+    // Isi nilai bawaan untuk field yang belum ada di data lama
+    return parsed.map((todo) => ({ startAt: '', dueAt: '', ...todo }));
   } catch {
     return [];
   }
@@ -21,18 +24,20 @@ export function useTodos() {
   }, [todos]);
 
   // CREATE
-  function addTodo({ title, note = '' }) {
-    const now = new Date().toISOString();
-    const newTodo = {
-      id: crypto.randomUUID(),
-      title: title.trim(),
-      status: 'none',
-      note: note.trim(),
-      createdAt: now,
-      updatedAt: now,
-    };
-    setTodos((prev) => [newTodo, ...prev]);
-  }
+function addTodo({ title, note = '', startAt = '', dueAt = '' }) {
+  const now = new Date().toISOString();
+  const newTodo = {
+    id: crypto.randomUUID(),
+    title: title.trim(),
+    status: 'none',
+    note: note.trim(),
+    startAt,
+    dueAt,
+    createdAt: now,
+    updatedAt: now,
+  };
+  setTodos((prev) => [newTodo, ...prev]);
+}
 
   // UPDATE
   function updateTodo(id, changes) {

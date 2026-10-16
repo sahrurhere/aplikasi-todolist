@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { useToast } from '../context/ToastContext';
+import { validateDateRange } from '../utils/dates';
+import DateRangeFields from './DateRangeFields';
 
 const MAX_TITLE = 120;
 
 export default function TodoForm({ onAdd }) {
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
+  const [startAt, setStartAt] = useState('');
+  const [dueAt, setDueAt] = useState('');
   const [error, setError] = useState('');
-
   const showToast = useToast();
 
   function handleSubmit(e) {
@@ -18,12 +21,19 @@ export default function TodoForm({ onAdd }) {
       return;
     }
 
-    onAdd({ title, note });
+    const dateError = validateDateRange(startAt, dueAt);
+    if (dateError) {
+      setError(dateError);
+      return;
+    }
+
+    onAdd({ title, note, startAt, dueAt });
+    showToast('Tugas ditambahkan');
     setTitle('');
     setNote('');
+    setStartAt('');
+    setDueAt('');
     setError('');
-
-    showToast('Tugas ditambahkan');
   }
 
   function handleTitleChange(e) {
@@ -61,6 +71,13 @@ export default function TodoForm({ onAdd }) {
         placeholder="Catatan (opsional)..."
         aria-label="Catatan"
         className="w-full resize-y rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent"
+      />
+
+      <DateRangeFields
+        startAt={startAt}
+        dueAt={dueAt}
+        onStartChange={setStartAt}
+        onDueChange={setDueAt}
       />
 
       {error && <p className="text-sm text-danger">{error}</p>}

@@ -4,16 +4,19 @@ import TodoCard from './components/TodoCard';
 import FilterTabs from './components/FilterTabs';
 import SearchBar from './components/SearchBar';
 import { useTodos } from './hooks/useTodos';
+import { useNow } from './hooks/useNow';
 import { countByStatus, getVisibleTodos } from './utils/todoFilters';
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Terbaru' },
   { value: 'oldest', label: 'Terlama' },
   { value: 'status', label: 'Status' },
+  { value: 'deadline', label: 'Deadline terdekat' },
 ];
 
 function App() {
   const { todos, addTodo, updateTodo, deleteTodo } = useTodos();
+  const now = useNow();
   const [filter, setFilter] = useState('all');
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest');
@@ -54,6 +57,7 @@ function App() {
       <TodoCard
         key={todo.id}
         todo={todo}
+        now={now}
         onUpdate={updateTodo}
         onDelete={deleteTodo}
       />
