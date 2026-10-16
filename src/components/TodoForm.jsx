@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useToast } from '../context/ToastContext';
 
 const MAX_TITLE = 120;
 
@@ -6,6 +7,8 @@ export default function TodoForm({ onAdd }) {
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
+
+  const showToast = useToast();
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -19,6 +22,8 @@ export default function TodoForm({ onAdd }) {
     setTitle('');
     setNote('');
     setError('');
+
+    showToast('Tugas ditambahkan');
   }
 
   function handleTitleChange(e) {
