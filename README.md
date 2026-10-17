@@ -290,5 +290,5 @@ npm run preview    # jalankan hasil build (http://localhost:4173)
 - [x] Grid 2 kartu per baris, kartu ganjil terakhir di tengah
 - [x] Responsif di mobile
 - [x] Testing semua fitur CRUD
-- [ ] Jalankan `npm run lint` dan `npm run build` tanpa error
+- [x] Jalankan `npm run lint` dan `npm run build` tanpa error
 - [ ] Deploy (Vercel atau GitHub Pages)
