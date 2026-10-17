@@ -53,19 +53,24 @@ function App() {
       </div>
     );
   } else {
-    content = visibleTodos.map((todo) => (
-      <TodoCard
-        key={todo.id}
-        todo={todo}
-        now={now}
-        onUpdate={updateTodo}
-        onDelete={deleteTodo}
-      />
-    ));
+    content = (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        {visibleTodos.map((todo) => (
+          <div key={todo.id} className="md:col-span-2 md:last:odd:col-start-2">
+            <TodoCard
+              todo={todo}
+              now={now}
+              onUpdate={updateTodo}
+              onDelete={deleteTodo}
+            />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (
-    <main className="mx-auto max-w-[720px] px-4 py-10">
+    <main className="mx-auto max-w-[960px] px-4 py-10">
       <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-bold">
           <span className="text-accent">✓</span> My To-Do
@@ -99,7 +104,7 @@ function App() {
         </label>
       </div>
 
-      <section className="mt-4 space-y-3">{content}</section>
+      <section className="mt-4">{content}</section>
     </main>
   );
 }

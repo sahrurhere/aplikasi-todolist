@@ -98,7 +98,8 @@ export default function TodoCard({ todo, now, onUpdate, onDelete }) {
     return (
       <form
         onSubmit={saveEdit}
-        className="space-y-3 rounded-xl border border-accent/50 bg-surface p-4"
+        // DIUBAH: tambah h-full agar form mengisi tinggi baris grid
+        className="h-full space-y-3 rounded-xl border border-accent/50 bg-surface p-4"
       >
         <input
           type="text"
@@ -146,7 +147,8 @@ export default function TodoCard({ todo, now, onUpdate, onDelete }) {
   // ---------- Mode tampil ----------
   return (
     <article
-      className={`rounded-xl border bg-surface p-4 transition duration-200 hover:bg-surface-2 ${
+      // DIUBAH: tambah flex h-full flex-col agar semua kartu dalam satu baris sama tinggi
+      className={`flex h-full flex-col rounded-xl border bg-surface p-4 transition duration-200 hover:bg-surface-2 ${
         deadlineState === 'overdue' ? 'border-danger/50' : 'border-border'
       } ${isDone ? 'opacity-60' : ''}`}
     >
@@ -217,7 +219,8 @@ export default function TodoCard({ todo, now, onUpdate, onDelete }) {
         </div>
       )}
 
-      <div className="mt-3 flex items-center justify-between">
+      {/* DIUBAH: mt-3 → mt-auto pt-3 agar baris tombol terdorong ke bawah kartu */}
+      <div className="mt-auto flex items-center justify-between pt-3">
         <time dateTime={todo.createdAt} className="text-xs text-muted">
           Dibuat {dateFormatter.format(new Date(todo.createdAt))}
         </time>
