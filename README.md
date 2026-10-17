@@ -1,4 +1,5 @@
 # To-Do List Website — Dokumentasi Proyek
+🔗 **Demo:** https://USERNAME.github.io/aplikasi-todolist/
 
 ## 1. Ringkasan
 
@@ -291,4 +292,4 @@ npm run preview    # jalankan hasil build (http://localhost:4173)
 - [x] Responsif di mobile
 - [x] Testing semua fitur CRUD
 - [x] Jalankan `npm run lint` dan `npm run build` tanpa error
-- [ ] Deploy (Vercel atau GitHub Pages)
+- [x] Deploy (Vercel atau GitHub Pages)
